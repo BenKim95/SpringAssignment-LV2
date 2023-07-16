@@ -74,7 +74,7 @@ public class JwtUtil { // 다른 객체에 의존하지 않고 하나의 모듈�
     public void addJwtToCookie(String token, HttpServletResponse httpServletResponse) {
         try {
             token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value에는 공백이 불가능하여 encoding 진행
-
+            logger.info(token);
             Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name - Value
             cookie.setPath("/");
 
@@ -132,4 +132,14 @@ public class JwtUtil { // 다른 객체에 의존하지 않고 하나의 모듈�
         }
         return null;
     }
+
+    public String resolveToken(HttpServletRequest request) { // HttpServletRequset 안에는 우리가 가져와야 할 토큰이 헤더에 들어있음
+//        String requestToken = request.getHeader(AUTHORIZATION_HEADER); // 파라미터로 가져올 값을 넣어주면 됨
+        String bearerToken = getTokenFromRequest(request);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) { // 코드가 있는지, BEARER로 시작하는지 확인
+            return bearerToken.substring(7); // 앞에 7글자를 지워줌 BEARER가 6글자이고 한칸이 띄어져있기때문
+        }
+        return null;
+    }
+
 }

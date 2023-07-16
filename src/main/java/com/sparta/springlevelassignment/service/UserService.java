@@ -7,6 +7,7 @@ import com.sparta.springlevelassignment.entity.User;
 import com.sparta.springlevelassignment.entity.UserRoleEnum;
 import com.sparta.springlevelassignment.jwt.JwtUtil;
 import com.sparta.springlevelassignment.repository.UserRepository;
+import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -40,6 +42,17 @@ public class UserService {
     public void signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
+
+//        // 아이디 형식 확인
+//        if (!Pattern.matches("^[a-z0-9]{4,10}$", username)) {
+//            throw new IllegalArgumentException ("형식에 맞지 않는 아이디 입니다.");
+//        }
+//
+//        // 비밀번호 형식 확인
+//        log.info("passoword 확인" + password);
+//        if (!Pattern.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$", password)) {
+//            throw new IllegalArgumentException ("형식에 맞지 않는 비밀번호 입니다.");
+//        }
 
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
@@ -88,6 +101,7 @@ public class UserService {
         }
 
         //JWT 토큰 생성 및 반환 ※ 2번째 파라미터 잘 되는지 확인 필요
-        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getUserRoleEnum()));
+//        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getUserRoleEnum()));
+        jwtUtil.addJwtToCookie(jwtUtil.createToken(user.getUsername(), user.getUserRoleEnum()), httpServletResponse);
     }
 }
