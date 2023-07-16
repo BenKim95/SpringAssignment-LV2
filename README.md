@@ -2,24 +2,16 @@
 
 # Spring Lv.2 & Lv. 3
 
-<aside>
+
 🏁 **Goal:  "회원가입, 로그인 기능이 추가된 나만의 항해 블로그 백엔드 서버 만들기"**
 
-</aside>
 
-[PostMan JWT 활용 방법 확인하기](https://www.notion.so/PostMan-JWT-4a978c50b1f74b36a733509d95536365?pvs=21)
-
-- [과제 시작 전 읽어보기](https://www.notion.so/Spring-Lv-2-ea5651cd95254cafb2ac922129a213ec?pvs=21)
-
-<aside>
-🚩 **Requirement:  과제에 요구되는 사항이에요**
-
-</aside>
-
-
-⚠️ **아래의 요구사항에 맞게 API 명세서를 수정해 보고 프로젝트를 수정 및 기능을 추가해 보세요!**
 ※ PostMan 사용 링크: https://www.notion.so/Spring-Lv-2-3-b7ddcfd668d242248dce76cd75ba9db8?pvs=4#e9a825070f2b4e8b8daa12c408138de2
+
+
 ※ ERD 이미지: ![img_1.png](img.png)
+
+
 ※ API 명세서 링크 : https://www.notion.so/Spring-Lv-2-3-b7ddcfd668d242248dce76cd75ba9db8?pvs=4#f8c04cf4713340f8a3fcca5808d4ab2f
 
 
