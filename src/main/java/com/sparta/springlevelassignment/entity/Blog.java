@@ -39,7 +39,7 @@ public class Blog extends Timestamped {
     // referencedColumnName = 외래키가 참조하는 컬럼명, insertable,updatable = 해당 엔티티가 DB에 삽입,수정될 때 외래 키 열도 함께 변경 가능 여부를 나타냄
     private User user;
 
-    @OneToMany(mappedBy = "blog", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "blog", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
 
 
