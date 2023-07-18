@@ -12,6 +12,7 @@ import com.sparta.springlevelassignment.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor //final이 붙거나 @NotNull 이 붙은 필드의 생성자를 자동 생성해주는 롬복 어노테이션
 public class BlogService {
@@ -35,6 +37,7 @@ public class BlogService {
         //토큰 체크
         User user = checkToken(httpServletRequest);
 
+        log.info(user.getUsername());
         if (user == null) {
             throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
         }

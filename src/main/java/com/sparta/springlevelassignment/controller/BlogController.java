@@ -33,6 +33,7 @@ public class BlogController {
     public BlogResponseDto getBlog (@PathVariable Long id) {
         return blogService.getBlog(id);
     }
+
     // Blog 수정 API
     @PutMapping("/api/blog/{id}")
     public BlogResponseDto updateBlog (@PathVariable Long id, @RequestBody BlogRequestDto blogRequestDto, HttpServletRequest httpServletRequest) {

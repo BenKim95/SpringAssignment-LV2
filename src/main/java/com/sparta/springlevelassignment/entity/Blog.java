@@ -52,6 +52,7 @@ public class Blog extends Timestamped {
         this.username = user.getUsername(); // blogRequestDto.getUsername();을 하면, blog 테이블의 username이 PostMan으로 보낸 이름으로 바뀜
     }
 
+
     // Post Entity의 필드 값을 해당 객체의 필드 값으로 변경, 즉 게시글을 수정하고 업데이트
     public void update(BlogRequestDto blogRequestDto) {
         this.title = blogRequestDto.getTitle();

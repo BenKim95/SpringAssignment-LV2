@@ -14,10 +14,12 @@ import com.sparta.springlevelassignment.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -31,6 +33,7 @@ public class CommentService {
     @Transactional
     public CommentResponseDto createComment(Long blogId, CommentRequestDto commentRequestDto, HttpServletRequest httpServletRequest) {
         User user = checkToken(httpServletRequest);
+        log.info(user.getPassword());
 
         Blog blog = blogRepository.findById(blogId).orElseThrow(
                 () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")

@@ -1,13 +1,14 @@
 package com.sparta.springlevelassignment.service;
 
-import com.sparta.springlevelassignment.dto.ApiResult;
-import com.sparta.springlevelassignment.dto.LoginRequestDto;
-import com.sparta.springlevelassignment.dto.SignupRequestDto;
+import com.sparta.springlevelassignment.dto.*;
+import com.sparta.springlevelassignment.entity.PasswordHistory;
 import com.sparta.springlevelassignment.entity.User;
 import com.sparta.springlevelassignment.entity.UserRoleEnum;
 import com.sparta.springlevelassignment.jwt.JwtUtil;
+import com.sparta.springlevelassignment.repository.PasswordRepository;
 import com.sparta.springlevelassignment.repository.UserRepository;
-import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -27,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PasswordRepository passwordRepository;
 
 //        public UserService (UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
 //        this.userRepository = userRepository;
@@ -103,5 +105,86 @@ public class UserService {
         //JWT 토큰 생성 및 반환 ※ 2번째 파라미터 잘 되는지 확인 필요
 //        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getUserRoleEnum()));
         jwtUtil.addJwtToCookie(jwtUtil.createToken(user.getUsername(), user.getUserRoleEnum()), httpServletResponse);
+    }
+
+    //회원 정보 조회
+    @Transactional (readOnly = true)
+    public ProfileResponseDto showProfile(HttpServletRequest httpServletRequest ) {
+        User user = checkToken(httpServletRequest);
+
+        if (user == null) {
+            throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
+        }
+
+        return new ProfileResponseDto(user);
+    }
+
+    //회원 정보 변경
+    @Transactional
+    public ApiResult editProfile (ProfileEditRequestDto profileEditRequestDto, HttpServletRequest httpServletRequest) {
+
+        User user = checkToken(httpServletRequest);
+
+        String password = profileEditRequestDto.getPassword();
+        String introduction = profileEditRequestDto.getIntroduction();
+        String changePassword = profileEditRequestDto.getChangepassword();;
+
+        if (!passwordEncoder.matches(password, user.getPassword())) { // 첫번째 파라미터는 encoding 안된 비밀번호, 두번째는 encoding된 난수 비밀번호
+            return new ApiResult("기존 비밀번호를 잘못 입력하셨습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        //최근 3회 비밀번호 가져오기
+        List<PasswordHistory> passwordHistoryList = passwordRepository.findTop3ByUserOrderByModifiedAtDesc(user);
+
+        for (PasswordHistory passwordHistory : passwordHistoryList) {
+            if (passwordEncoder.matches(changePassword, passwordHistory.getPassword())) {
+                return new ApiResult("최근 3번동안 사용한 비밀번호는 사용이 불가능합니다.", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+
+        //현재 비밀번호를 PasswordRepository에 저장
+        PasswordHistory currentPasswordHistory = new PasswordHistory();
+        currentPasswordHistory.setUser(user);
+        currentPasswordHistory.setPassword(user.getPassword());
+        passwordRepository.save(currentPasswordHistory);
+
+        // 히스토리에서 3번째 전 비밀번호 삭제
+        if (passwordHistoryList.size() >= 3) {
+            PasswordHistory deletePasswordHistory = passwordHistoryList.get(passwordHistoryList.size() - 1);
+            passwordRepository.delete(deletePasswordHistory);
+        }
+
+        String newPassword = passwordEncoder.encode(changePassword);
+
+        user.setPassword(newPassword);
+        user.setIntroduction(introduction);
+        userRepository.save(user);
+        return new ApiResult("프로필 변경에 성공했습니다", HttpStatus.ACCEPTED);
+    }
+
+
+    // Token 체크
+    public User checkToken(HttpServletRequest request){
+
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        if (token != null) {
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException("Token Error");
+            }
+
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+            );
+            return user;
+
+        }
+        return null;
     }
 }

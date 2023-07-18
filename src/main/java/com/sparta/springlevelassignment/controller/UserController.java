@@ -1,19 +1,15 @@
 package com.sparta.springlevelassignment.controller;
 
-import com.sparta.springlevelassignment.dto.ApiResult;
-import com.sparta.springlevelassignment.dto.LoginRequestDto;
-import com.sparta.springlevelassignment.dto.SignupRequestDto;
+import com.sparta.springlevelassignment.dto.*;
 import com.sparta.springlevelassignment.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,7 +44,18 @@ public class UserController {
     @PostMapping("/blog/login")
     public ApiResult login (@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse httpServletResponse) {
         userService.login(loginRequestDto, httpServletResponse);
-
         return new ApiResult("로그인 성공", HttpStatus.ACCEPTED);
+    }
+
+    //회원정보 조회 API
+    @GetMapping("/blog/profile")
+    public ProfileResponseDto showProfile(HttpServletRequest httpServletRequest) {
+      return userService.showProfile(httpServletRequest);
+    }
+
+    //회원정보 수정 API
+    @PutMapping("/blog/edit-profile")
+    public ApiResult editProfile (@RequestBody ProfileEditRequestDto profileEditRequestDto, HttpServletRequest httpServletRequest) {
+        return userService.editProfile(profileEditRequestDto, httpServletRequest);
     }
 }
